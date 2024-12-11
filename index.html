@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Three.js GLTF Example</title>
+    <style>
+        body { 
+            margin: 0; 
+            font-family: Arial, sans-serif; 
+            background-color: #87CEEB; /* Matches the daytime blue background */ 
+        }
+        canvas { 
+            display: block; 
+        }
+        .info {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: black; /* Makes text readable on blue */
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="info">
+        Interactive Vending Machine<br>
+
+         Gehna Goel, Vedika Mahamulkar [12/10/2024]<br>
+         
+        Click anywhere on the surface of the vending machine for a surprise! Also make sure to click on the light switch to toggle between day and night mode!
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
