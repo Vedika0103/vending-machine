@@ -38,13 +38,45 @@ const loader = new GLTFLoader();
 let vendingMachine = null;
 let sodaCanTemplate = null;
 
+// Texture loader for day/night backgrounds
+const textureLoader = new THREE.TextureLoader();
+const dayTexture = textureLoader.load('day.jpg'); // Load day background
+const nightTexture = textureLoader.load('night.jpg'); // Load night background
+scene.background = dayTexture; // Set initial background to day
+
+// Add notification element
+const notification = document.createElement('div');
+notification.style.position = 'absolute';
+notification.style.bottom = '20px';
+notification.style.left = '50%';
+notification.style.transform = 'translateX(-50%)';
+notification.style.padding = '10px 20px';
+notification.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+notification.style.color = 'white';
+notification.style.fontSize = '14px';
+notification.style.borderRadius = '8px';
+notification.style.display = 'none';
+notification.style.zIndex = 20;
+notification.innerText = 'Soda can dropped!';
+document.body.appendChild(notification);
+
+// Show notification function
+function showNotification(message) {
+    notification.innerText = message;
+    notification.style.display = 'block';
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 1500);
+}
+
 // Load vending machine
 loader.load('models/vending_machine_rendered.glb', (gltf) => {
     vendingMachine = gltf.scene;
     scene.add(vendingMachine);
 
-    vendingMachine.position.set(0, -0.85, 0); // Adjust Y position to align with the ground
-    vendingMachine.scale.set(1.2, 1.2, 1.2);
+    // Adjust position, scale, and orientation
+    vendingMachine.position.set(0, -0.85, 0); // Center and align with ground
+    vendingMachine.scale.set(1.5, 1.5, 1.5); // Slightly larger vending machine
     vendingMachine.rotation.y = Math.PI * 1.5;
 
     vendingMachine.traverse((child) => {
@@ -56,13 +88,25 @@ loader.load('models/vending_machine_rendered.glb', (gltf) => {
         }
     });
 
+    // Add hover effect for vending machine
+    vendingMachine.traverse((child) => {
+        if (child.isMesh) {
+            child.onPointerOver = () => {
+                document.body.style.cursor = 'pointer';
+            };
+            child.onPointerOut = () => {
+                document.body.style.cursor = 'default';
+            };
+        }
+    });
+
     // Add bulb image to toggle day/night mode
     const bulbImage = document.createElement('img');
     bulbImage.src = 'bulb.png'; // Ensure bulb.png is in the project folder
     bulbImage.alt = 'Toggle Day/Night';
     bulbImage.style.position = 'absolute';
     bulbImage.style.top = '120px';
-    bulbImage.style.right = '20px'; // Position the bulb image on the right
+    bulbImage.style.right = '20px';
     bulbImage.style.width = '50px';
     bulbImage.style.height = '50px';
     bulbImage.style.cursor = 'pointer';
@@ -115,6 +159,7 @@ function dropNewSodaCan() {
     sodaCan.position.set((Math.random() - 0.5) * 0.3, 0.5, 0);
     scene.add(sodaCan);
     dropFood(sodaCan);
+    showNotification('Soda can dropped!');
 }
 
 // Drop animation for soda cans
@@ -149,20 +194,20 @@ function animate() {
 
 animate();
 
-// Toggle Day/Night Mode
+// Toggle Day/Night Mode with smooth transition
 let isDay = true;
 
 function toggleDayNight() {
-    if (isDay) {
-        renderer.setClearColor(0x000033); // Dark blue for night
-        directionalLight.intensity = 0.8;
-        ambientLight.intensity = 0.4;
-        ambientLight.color.set(0x555555);
-    } else {
-        renderer.setClearColor(0x87CEEB); // Light blue for day
-        directionalLight.intensity = 1.5;
-        ambientLight.intensity = 1;
-        ambientLight.color.set(0xFFFFFF);
-    }
+    scene.background = isDay ? nightTexture : dayTexture; // Set background to day/night
+    directionalLight.intensity = isDay ? 0.8 : 1.5;
+    ambientLight.intensity = isDay ? 0.4 : 1;
+    ambientLight.color.set(isDay ? 0x555555 : 0xFFFFFF);
     isDay = !isDay;
 }
+
+// Make scene responsive to window resizing
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
